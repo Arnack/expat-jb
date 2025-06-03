@@ -13,9 +13,9 @@ export function MainNav() {
         <Link href="/employers" className="text-sm font-medium transition-colors hover:text-primary">
           For Employers
         </Link>
-        <Link href="/resources" className="text-sm font-medium transition-colors hover:text-primary">
+        {/* <Link href="/resources" className="text-sm font-medium transition-colors hover:text-primary">
           Resources
-        </Link>
+        </Link> */}
       </nav>
     </div>
   )
