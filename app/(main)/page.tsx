@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Briefcase, Globe, Users } from "lucide-react"
 import { supabase } from "@/lib/supabase/client"
 import type { UserProfile } from "@/types"
+import EmployerDashboard from "@/components/employer-dashboard/employer-dashboard"
 
 export default function HomePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [isEmployer, setIsEmployer] = useState(false)
 
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
@@ -28,8 +30,9 @@ export default function HomePage() {
             .single()
 
           if (data && data.role === "employer") {
+            setIsEmployer(true)
             // Redirect employers to their dashboard
-            router.replace("/employer/dashboard")
+            // router.replace("/employer/dashboard")
             return
           } else if (data && data.role === "job_seeker") {
             // Job seekers stay on landing page but we store their profile
@@ -53,6 +56,10 @@ export default function HomePage() {
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
     )
+  }
+
+  if (isEmployer) {
+    return <EmployerDashboard />
   }
 
   return (
