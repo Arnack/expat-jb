@@ -148,7 +148,7 @@ export async function JobDetail({ job }: JobDetailProps) {
           <Button className="w-full sm:w-auto" asChild>
             <a href={`mailto:${job.email_to_apply}?subject=Application for ${job.title}`}>
               <Mail className="mr-2 h-4 w-4" />
-              Apply via Email
+              Easy Apply
             </a>
           </Button>
         ) : job.link_to_apply ? (

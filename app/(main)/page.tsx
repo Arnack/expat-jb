@@ -1,8 +1,60 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Briefcase, Globe, Users } from "lucide-react"
+import { supabase } from "@/lib/supabase/client"
+import type { UserProfile } from "@/types"
 
 export default function HomePage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+
+  useEffect(() => {
+    const checkAuthAndRedirect = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
+
+        if (session?.user) {
+          const { data } = await supabase
+            .from("user_profiles")
+            .select("*")
+            .eq("id", session.user.id)
+            .single()
+
+          if (data && data.role === "employer") {
+            // Redirect employers to their dashboard
+            router.replace("/employer/dashboard")
+            return
+          } else if (data && data.role === "job_seeker") {
+            // Job seekers stay on landing page but we store their profile
+            setProfile(data as UserProfile)
+          }
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkAuthAndRedirect()
+  }, [router])
+
+  // Show loading state briefly while checking auth
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
       {/* Hero Section */}
