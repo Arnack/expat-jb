@@ -51,37 +51,37 @@ const plans = [
     icon: <Star className="h-5 w-5" />,
     popular: true,
   },
-  {
-    id: "premium",
-    name: "Premium",
-    price: 9.88,
-    description: "Maximum exposure",
-    features: [
-      "Everything in Standard",
-      "Top placement in all searches",
-      "Highlighted job posting",
-      "Social media promotion",
-      "Priority customer support",
-    ],
-    icon: <Crown className="h-5 w-5" />,
-    popular: false,
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: 19.88,
-    description: "Ultimate package",
-    features: [
-      "Everything in Premium",
-      "Featured on homepage",
-      "Email newsletter inclusion",
-      "Dedicated account manager",
-      "Advanced analytics",
-      "Unlimited job edits",
-    ],
-    icon: <Zap className="h-5 w-5" />,
-    popular: false,
-  },
+  // {
+  //   id: "premium",
+  //   name: "Premium",
+  //   price: 9.88,
+  //   description: "Maximum exposure",
+  //   features: [
+  //     "Everything in Standard",
+  //     "Top placement in all searches",
+  //     "Highlighted job posting",
+  //     "Social media promotion",
+  //     "Priority customer support",
+  //   ],
+  //   icon: <Crown className="h-5 w-5" />,
+  //   popular: false,
+  // },
+  // {
+  //   id: "pro",
+  //   name: "Pro",
+  //   price: 19.88,
+  //   description: "Ultimate package",
+  //   features: [
+  //     "Everything in Premium",
+  //     "Featured on homepage",
+  //     "Email newsletter inclusion",
+  //     "Dedicated account manager",
+  //     "Advanced analytics",
+  //     "Unlimited job edits",
+  //   ],
+  //   icon: <Zap className="h-5 w-5" />,
+  //   popular: false,
+  // },
 ]
 
 export function JobPublishStep({ formData, employerId, employerProfile, onSuccess }: JobPublishStepProps) {
@@ -296,7 +296,7 @@ export function JobPublishStep({ formData, employerId, employerProfile, onSucces
                     <strong>Duration:</strong> 30 days
                   </p>
                   <p>
-                    <strong>Job Title:</strong> {formData.title}
+                    <strong>Job Title:</strong> {formData?.title}
                   </p>
                 </div>
               </div>
