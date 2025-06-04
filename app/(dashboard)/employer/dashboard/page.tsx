@@ -1,43 +1,85 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Plus, Briefcase, Users, Eye, Calendar } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
-export default async function EmployerDashboard() {
-  const supabase = await createClient()
+export default function EmployerDashboard() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [session, setSession] = useState<any>(null)
+  const [jobs, setJobs] = useState<any[]>([])
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session) {
+          router.replace("/auth/login")
+          return
+        }
+
+        // Check if user is an employer
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single()
+
+        if (!profile || profile.role !== "employer") {
+          router.replace("/jobs")
+          return
+        }
+
+        // Fetch employer's job postings with application counts
+        const { data: jobsData } = await supabase
+          .from("job_postings")
+          .select(`
+            *,
+            job_applications (
+              id,
+              status,
+              created_at
+            )
+          `)
+          .eq("employer_id", session.user.id)
+          .order("created_at", { ascending: false })
+
+        setSession(session)
+        setJobs(jobsData || [])
+      } catch (error) {
+        console.error('Dashboard data loading failed:', error)
+        router.replace("/auth/login")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDashboardData()
+  }, [router])
+
+  if (loading) {
+    return (
+      <div className="container py-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!session) {
-    redirect("/auth/login")
+    return null
   }
-
-  // Check if user is an employer
-  const { data: profile } = await supabase.from("user_profiles").select("role").eq("id", session.user.id).single()
-
-  if (!profile || profile.role !== "employer") {
-    redirect("/jobs")
-  }
-
-  // Fetch employer's job postings with application counts
-  const { data: jobs } = await supabase
-    .from("job_postings")
-    .select(`
-      *,
-      job_applications (
-        id,
-        status,
-        created_at
-      )
-    `)
-    .eq("employer_id", session.user.id)
-    .order("created_at", { ascending: false })
 
   // Calculate stats
   const totalApplications = jobs?.reduce((acc, job) => acc + (job.job_applications?.length || 0), 0) || 0

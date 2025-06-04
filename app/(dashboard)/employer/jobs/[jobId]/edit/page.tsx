@@ -1,52 +1,103 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect, notFound } from "next/navigation"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { JobPostingForm } from "@/components/job-posting-form"
 import { JobStatusManager } from "@/components/employer/job-status-manager"
 import { JobDeleteDialog } from "@/components/employer/job-delete-dialog"
+import { updateJob } from "@/app/actions/job"
 import { ArrowLeft } from "lucide-react"
 
-export default async function EditJobPage({
+export default function EditJobPage({
   params,
 }: {
   params: { jobId: string }
 }) {
-  const supabase = await createClient()
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [session, setSession] = useState<any>(null)
+  const [job, setJob] = useState<any>(null)
+  const [employerProfile, setEmployerProfile] = useState<any>(null)
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  useEffect(() => {
+    const loadEditPageData = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session) {
+          router.replace("/auth/login")
+          return
+        }
 
-  if (!session) {
-    redirect("/auth/login")
+        // Check if user is an employer
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single()
+
+        if (!profile || profile.role !== "employer") {
+          router.replace("/jobs")
+          return
+        }
+
+        // Get job posting and verify ownership
+        const { data: jobData, error: jobError } = await supabase
+          .from("job_postings")
+          .select("*")
+          .eq("id", params.jobId)
+          .eq("employer_id", session.user.id)
+          .single()
+
+        if (jobError || !jobData) {
+          router.replace("/employer/dashboard")
+          return
+        }
+
+        // Get employer profile
+        const { data: empProfile } = await supabase
+          .from("employer_profiles")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .single()
+
+        setSession(session)
+        setJob(jobData)
+        setEmployerProfile(empProfile)
+      } catch (error) {
+        console.error('Edit job page data loading failed:', error)
+        router.replace("/auth/login")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadEditPageData()
+  }, [router, params.jobId])
+
+  const handleJobUpdate = async (data: any) => {
+    const result = await updateJob(params.jobId, data)
+    return result
   }
 
-  // Check if user is an employer
-  const { data: profile } = await supabase.from("user_profiles").select("role").eq("id", session.user.id).single()
-
-  if (!profile || profile.role !== "employer") {
-    redirect("/jobs")
+  if (loading) {
+    return (
+      <div className="container py-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
-  // Get job posting and verify ownership
-  const { data: job, error: jobError } = await supabase
-    .from("job_postings")
-    .select("*")
-    .eq("id", params.jobId)
-    .eq("employer_id", session.user.id)
-    .single()
-
-  if (jobError || !job) {
-    notFound()
+  if (!session || !job) {
+    return null
   }
-
-  // Get employer profile
-  const { data: employerProfile } = await supabase
-    .from("employer_profiles")
-    .select("*")
-    .eq("user_id", session.user.id)
-    .single()
 
   return (
     <div className="container py-6">
@@ -72,7 +123,7 @@ export default async function EditJobPage({
           <JobStatusManager job={job} />
         </div>
 
-        <JobPostingForm employerId={session.user.id} employerProfile={employerProfile} existingJob={job} mode="edit" />
+        <JobPostingForm onSubmit={handleJobUpdate} initialData={job} isEditing={true} />
       </div>
     </div>
   )

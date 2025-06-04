@@ -1,23 +1,58 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { supabase } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, ArrowRight } from "lucide-react"
 
-export default async function PaymentSuccessPage({
+export default function PaymentSuccessPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const supabase = await createClient()
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [session, setSession] = useState<any>(null)
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session) {
+          router.replace("/auth/login")
+          return
+        }
+
+        setSession(session)
+      } catch (error) {
+        console.error('Payment success page authentication failed:', error)
+        router.replace("/auth/login")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkAuthentication()
+  }, [router])
+
+  if (loading) {
+    return (
+      <div className="container py-12">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!session) {
-    redirect("/auth/login")
+    return null
   }
 
   const paymentIntentId = searchParams.payment_intent as string
