@@ -136,10 +136,10 @@ export default async function JobsPage({
         jobsQuery = jobsQuery.order("published_at", { ascending: true })
         break
       case "salary_desc":
-        jobsQuery = jobsQuery.order("salary_to", { ascending: false, nullsLast: true })
+        jobsQuery = jobsQuery.order("salary_to", { ascending: false, nullsFirst: false })
         break
       case "salary_asc":
-        jobsQuery = jobsQuery.order("salary_from", { ascending: true, nullsLast: true })
+        jobsQuery = jobsQuery.order("salary_from", { ascending: true, nullsFirst: false })
         break
       default:
         // Default to newest first
@@ -183,23 +183,20 @@ export default async function JobsPage({
         initialVisaSponsorship={visaSponsorship}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-        <div className="lg:col-span-1">
+      {selectedJob ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 mt-6">
+          <div className="lg:col-span-1">
+            <JobList jobs={(jobs as JobPosting[]) || []} selectedJobId={selectedJobId} />
+          </div>
+          <div className="lg:col-span-2">
+            <JobDetail job={selectedJob} />
+          </div>
+        </div>
+      ) : (
+        <div className="mt-6">
           <JobList jobs={(jobs as JobPosting[]) || []} selectedJobId={selectedJobId} />
         </div>
-        <div className="lg:col-span-2">
-          {selectedJob ? (
-            <JobDetail job={selectedJob} />
-          ) : (
-            <div className="bg-muted rounded-lg p-8 text-center">
-              <h3 className="text-xl font-medium mb-2">Select a job to view details</h3>
-              <p className="text-muted-foreground">
-                Click on any job from the list to view its full description and apply.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   )
 }
