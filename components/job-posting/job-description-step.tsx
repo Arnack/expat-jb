@@ -21,8 +21,8 @@ const jobDescriptionSchema = z.object({
   city: z.string().optional().nullable(),
   salary_from: z.number().optional().nullable(),
   salary_to: z.number().optional().nullable(),
-  email_to_apply: z.string().email("Invalid email").optional().nullable(),
-  link_to_apply: z.string().url("Invalid URL").optional().nullable(),
+  email_to_apply: z.string().optional().nullable(),
+  link_to_apply: z.string().optional().nullable(),
   is_global_remote: z.boolean().default(false),
   is_visa_sponsorship: z.boolean().default(false),
   sphere: z.string().optional().nullable(),
@@ -120,13 +120,41 @@ export function JobDescriptionStep({ onNext, initialData }: JobDescriptionStepPr
   const { errors } = formState
 
   const handleFormSubmit = (data: JobDescriptionFormValues) => {
-    // Clear the unused application method field
+    console.log("Form submitted with data:", data)
+    console.log("Application method:", applicationMethod)
+    console.log("Form errors:", errors)
+    
+    // Validate application method
     if (applicationMethod === "email") {
+      if (!data.email_to_apply || data.email_to_apply.trim() === "") {
+        console.log("Email validation failed: empty")
+        form.setError("email_to_apply", { message: "Email is required" })
+        return
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(data.email_to_apply)) {
+        console.log("Email validation failed: invalid format")
+        form.setError("email_to_apply", { message: "Invalid email format" })
+        return
+      }
       data.link_to_apply = null
     } else {
+      if (!data.link_to_apply || data.link_to_apply.trim() === "") {
+        console.log("Link validation failed: empty")
+        form.setError("link_to_apply", { message: "Application URL is required" })
+        return
+      }
+      try {
+        new URL(data.link_to_apply)
+      } catch {
+        console.log("Link validation failed: invalid URL")
+        form.setError("link_to_apply", { message: "Invalid URL format" })
+        return
+      }
       data.email_to_apply = null
     }
 
+    console.log("Validation passed, calling onNext")
     onNext(data)
   }
 
@@ -297,6 +325,7 @@ export function JobDescriptionStep({ onNext, initialData }: JobDescriptionStepPr
                     type="email"
                     {...register("email_to_apply")}
                     placeholder="e.g. careers@company.com"
+                    required
                   />
                   {errors.email_to_apply && (
                     <p className="text-sm text-destructive mt-1">{errors.email_to_apply.message}</p>
@@ -309,6 +338,7 @@ export function JobDescriptionStep({ onNext, initialData }: JobDescriptionStepPr
                     id="link_to_apply"
                     {...register("link_to_apply")}
                     placeholder="e.g. https://company.com/careers/job-123"
+                    required
                   />
                   {errors.link_to_apply && (
                     <p className="text-sm text-destructive mt-1">{errors.link_to_apply.message}</p>
