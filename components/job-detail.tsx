@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatDistanceToNow } from "date-fns"
 import type { JobPosting } from "@/types"
+import { ApplicationModal } from "@/components/application-modal"
 import {
   Building2,
   Calendar,
@@ -145,12 +146,12 @@ export async function JobDetail({ job }: JobDetailProps) {
 
       <CardFooter className="bg-muted/50 p-6 flex flex-col sm:flex-row gap-4">
         {job.email_to_apply ? (
-          <Button className="w-full sm:w-auto" asChild>
-            <a href={`mailto:${job.email_to_apply}?subject=Application for ${job.title}`}>
+          <ApplicationModal job={job}>
+            <Button className="w-full sm:w-auto">
               <Mail className="mr-2 h-4 w-4" />
               Easy Apply
-            </a>
-          </Button>
+            </Button>
+          </ApplicationModal>
         ) : job.link_to_apply ? (
           <Button className="w-full sm:w-auto" asChild>
             <a href={job.link_to_apply} target="_blank" rel="noopener noreferrer">
