@@ -80,7 +80,7 @@ export async function updateApplicationStatus(applicationId: string, newStatus: 
         companyName: application.job_postings.employer_profiles.company_name,
         oldStatus,
         newStatus,
-        applicationUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/jobseeker/applications`,
+        applicationUrl: `${process.env.NEXT_PUBLIC_APP_URL}/jobseeker/applications`,
         jobUrl: `${process.env.NEXT_PUBLIC_APP_URL}/jobs?job=${application.job_postings.id}`,
       })
     }

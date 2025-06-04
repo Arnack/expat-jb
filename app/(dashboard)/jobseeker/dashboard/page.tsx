@@ -146,7 +146,7 @@ export default function JobSeekerDashboard() {
               )}
 
               <Button asChild variant="outline" className="w-full">
-                <Link href="/dashboard/jobseeker/profile">
+                <Link href="/jobseeker/profile">
                   <User className="mr-2 h-4 w-4" />
                   Edit Profile
                 </Link>
@@ -258,7 +258,7 @@ export default function JobSeekerDashboard() {
                   {applications.length >= 10 && (
                     <div className="text-center pt-4">
                       <Button variant="outline" asChild>
-                        <Link href="/dashboard/jobseeker/applications">View All Applications</Link>
+                        <Link href="/jobseeker/applications">View All Applications</Link>
                       </Button>
                     </div>
                   )}

@@ -140,7 +140,7 @@ export async function applyToJob(jobId: string, coverLetter: string) {
         companyName: job.employer_profiles.company_name,
         applicationDate: formatDate(new Date()),
         jobUrl: `${process.env.NEXT_PUBLIC_APP_URL}/jobs?job=${jobId}`,
-        dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/jobseeker/applications`,
+        dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/jobseeker/applications`,
       })
     }
 

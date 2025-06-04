@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/lib/supabase/client"
 import { Loader2, FileText, Download, Trash2, User, MapPin, Briefcase } from "lucide-react"
 import type { UserProfile, JobSeekerProfile } from "@/types"
-import { CVUpload } from "@/components/jobseeker/cv-upload"
+import { CVUploadDatabase as CVUpload } from "@/components/jobseeker/cv-upload-database"
 
 interface JobSeekerProfileFormProps {
   userId: string
