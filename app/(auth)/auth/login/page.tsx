@@ -46,7 +46,7 @@ export default function LoginPage() {
           if (profileData.role === "employer") {
             router.push("/employer/dashboard")
           } else {
-            router.push("/jobs")
+            router.push("/jobseeker/dashboard")
           }
         } else {
           // If no profile exists yet, redirect to complete profile

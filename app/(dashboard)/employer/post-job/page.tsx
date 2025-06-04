@@ -1,9 +1,9 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { JobPostingForm } from "@/components/job-posting-form"
 
 export default async function PostJobPage() {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   const {
     data: { session },

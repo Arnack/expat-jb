@@ -1,10 +1,10 @@
 "use server"
 
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import type { JobFormData } from "@/components/job-posting-form"
 
 export async function updateJob(jobId: string, formData: JobFormData) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   try {
     // Verify user session

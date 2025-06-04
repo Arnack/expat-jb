@@ -1,10 +1,10 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { NotificationPreferencesForm } from "@/components/notification-preferences-form"
 import type { NotificationPreferences } from "@/types"
 
 export default async function NotificationSettingsPage() {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   const {
     data: { session },

@@ -1,10 +1,10 @@
 "use server"
 
 import { stripe } from "@/lib/stripe/config"
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 
 export async function createPaymentIntent(jobId: string, plan: string) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   try {
     // Verify user session
@@ -68,7 +68,7 @@ export async function createPaymentIntent(jobId: string, plan: string) {
 }
 
 export async function confirmJobPublication(paymentIntentId: string) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   try {
     // Verify user session

@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import type { JobPosting } from "@/types"
 import { JobFilters } from "@/components/job-filters"
 import { JobList } from "@/components/job-list"
@@ -9,7 +9,7 @@ export default async function JobsPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   // Parse search parameters
   const query = searchParams.q as string | undefined

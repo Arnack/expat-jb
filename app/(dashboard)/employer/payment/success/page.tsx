@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -10,7 +10,7 @@ export default async function PaymentSuccessPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined }
 }) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   const {
     data: { session },

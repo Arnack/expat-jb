@@ -1,10 +1,10 @@
 "use server"
 
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { sendApplicationStatusUpdateEmail } from "@/lib/email/service"
 
 export async function updateApplicationStatus(applicationId: string, newStatus: string) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   try {
     // Verify user session
@@ -80,7 +80,7 @@ export async function updateApplicationStatus(applicationId: string, newStatus: 
         companyName: application.job_postings.employer_profiles.company_name,
         oldStatus,
         newStatus,
-        applicationUrl: `${process.env.NEXT_PUBLIC_APP_URL}/jobseeker/applications`,
+        applicationUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/jobseeker/applications`,
         jobUrl: `${process.env.NEXT_PUBLIC_APP_URL}/jobs?job=${application.job_postings.id}`,
       })
     }

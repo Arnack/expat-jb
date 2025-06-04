@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -12,7 +12,7 @@ export default async function EditJobPage({
 }: {
   params: { jobId: string }
 }) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   const {
     data: { session },

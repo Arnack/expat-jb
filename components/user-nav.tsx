@@ -124,7 +124,7 @@ export function UserNav() {
           </DropdownMenuItem>
           {profile?.role === "job_seeker" && (
             <DropdownMenuItem asChild>
-              <Link href="/jobseeker/applications">My Applications</Link>
+              <Link href="/dashboard/jobseeker/applications">My Applications</Link>
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>

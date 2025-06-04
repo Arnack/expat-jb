@@ -16,7 +16,7 @@ import {
   MapPin,
 } from "lucide-react"
 import Link from "next/link"
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 
 interface JobDetailProps {
   job: JobPosting
@@ -24,7 +24,7 @@ interface JobDetailProps {
 
 export async function JobDetail({ job }: JobDetailProps) {
   // Get the current user to check if they're the job owner
-  const supabase = createServerClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

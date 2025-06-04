@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { Plus, Briefcase, Users, Eye, Calendar } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 
 export default async function EmployerDashboard() {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   const {
     data: { session },

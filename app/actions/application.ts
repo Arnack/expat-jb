@@ -1,11 +1,11 @@
 "use server"
 
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { sendApplicationReceivedEmail, sendApplicationConfirmationEmail } from "@/lib/email/service"
 import { formatDate } from "@/lib/utils"
 
 export async function applyToJob(jobId: string, coverLetter: string) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   try {
     // Verify user session
@@ -140,7 +140,7 @@ export async function applyToJob(jobId: string, coverLetter: string) {
         companyName: job.employer_profiles.company_name,
         applicationDate: formatDate(new Date()),
         jobUrl: `${process.env.NEXT_PUBLIC_APP_URL}/jobs?job=${jobId}`,
-        dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/jobseeker/applications`,
+        dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/jobseeker/applications`,
       })
     }
 

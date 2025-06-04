@@ -1,33 +1,82 @@
-import { createServerClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase/client"
 import { JobSeekerProfileForm } from "@/components/jobseeker/profile-form"
+import { UserProfile, JobSeekerProfile } from "@/types"
 
-export default async function JobSeekerProfilePage() {
-  const supabase = createServerClient()
+export default function JobSeekerProfilePage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [session, setSession] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [jobSeekerProfile, setJobSeekerProfile] = useState<JobSeekerProfile | null>(null)
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session) {
+          router.replace("/auth/login")
+          return
+        }
 
-  if (!session) {
-    redirect("/auth/login")
+        // Check if user is a job seeker
+        const { data: profile } = await supabase
+          .from("user_profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .single()
+
+        if (!profile || profile.role !== "job_seeker") {
+          router.replace("/employer/dashboard")
+          return
+        }
+
+        // Get user profile and job seeker profile
+        const { data: userProfileData } = await supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single()
+
+        const { data: jobSeekerProfileData } = await supabase
+          .from("job_seeker_profiles")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .single()
+
+        setSession(session)
+        setUserProfile(userProfileData)
+        setJobSeekerProfile(jobSeekerProfileData)
+      } catch (error) {
+        console.error("Error checking auth:", error)
+        router.replace("/auth/login")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkAuth()
+  }, [router])
+
+  if (loading) {
+    return (
+      <div className="container py-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
-  // Check if user is a job seeker
-  const { data: profile } = await supabase.from("user_profiles").select("role").eq("id", session.user.id).single()
-
-  if (!profile || profile.role !== "job_seeker") {
-    redirect("/employer/dashboard")
+  if (!session || !userProfile) {
+    return null
   }
-
-  // Get user profile and job seeker profile
-  const { data: userProfile } = await supabase.from("user_profiles").select("*").eq("id", session.user.id).single()
-
-  const { data: jobSeekerProfile } = await supabase
-    .from("job_seeker_profiles")
-    .select("*")
-    .eq("user_id", session.user.id)
-    .single()
 
   return (
     <div className="container py-6">

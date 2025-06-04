@@ -1,63 +1,77 @@
-import { createServerClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { formatDistanceToNow } from "date-fns"
-import { User, Briefcase, FileText, MapPin, Calendar, ExternalLink } from "lucide-react"
+import { User, Briefcase, FileText, MapPin, Calendar, ExternalLink, Loader2 } from "lucide-react"
+import { supabase } from "@/lib/supabase/client"
 
-export default async function JobSeekerDashboard() {
-  const supabase = createServerClient()
+export default function JobSeekerDashboard() {
+  const [loading, setLoading] = useState(true)
+  const [userProfile, setUserProfile] = useState<any>(null)
+  const [jobSeekerProfile, setJobSeekerProfile] = useState<any>(null)
+  const [applications, setApplications] = useState<any[]>([])
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        if (!session) {
+          return // Layout will handle redirect
+        }
 
-  if (!session) {
-    redirect("/auth/login")
-  }
+        // Get user profile and job seeker profile
+        const { data: userProfileData } = await supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single()
 
-  // Check if user is a job seeker
-  const { data: profile } = await supabase.from("user_profiles").select("role").eq("id", session.user.id).single()
+        const { data: jobSeekerProfileData } = await supabase
+          .from("job_seeker_profiles")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .single()
 
-  if (!profile || profile.role !== "job_seeker") {
-    redirect("/employer/dashboard")
-  }
+        // Get user's applications
+        const { data: applicationsData } = await supabase
+          .from("job_applications")
+          .select(`
+            *,
+            job_postings (
+              id,
+              title,
+              country,
+              city,
+              is_global_remote,
+              salary_from,
+              salary_to,
+              employer_profiles (
+                company_name
+              )
+            )
+          `)
+          .eq("applicant_id", session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(10)
 
-  // Get user profile and job seeker profile
-  const { data: userProfile } = await supabase.from("user_profiles").select("*").eq("id", session.user.id).single()
+        setUserProfile(userProfileData)
+        setJobSeekerProfile(jobSeekerProfileData)
+        setApplications(applicationsData || [])
+      } catch (error) {
+        console.error('Dashboard data loading failed:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-  const { data: jobSeekerProfile } = await supabase
-    .from("job_seeker_profiles")
-    .select("*")
-    .eq("user_id", session.user.id)
-    .single()
-
-  // Get user's applications
-  const { data: applications } = await supabase
-    .from("job_applications")
-    .select(
-      `
-      *,
-      job_postings (
-        id,
-        title,
-        country,
-        city,
-        is_global_remote,
-        salary_from,
-        salary_to,
-        employer_profiles (
-          company_name
-        )
-      )
-    `,
-    )
-    .eq("applicant_id", session.user.id)
-    .order("created_at", { ascending: false })
-    .limit(10)
+    loadDashboardData()
+  }, [])
 
   // Calculate profile completeness
   const calculateProfileCompleteness = () => {
@@ -73,6 +87,16 @@ export default async function JobSeekerDashboard() {
   }
 
   const profileCompleteness = calculateProfileCompleteness()
+
+  if (loading) {
+    return (
+      <div className="container py-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container py-6">
@@ -122,7 +146,7 @@ export default async function JobSeekerDashboard() {
               )}
 
               <Button asChild variant="outline" className="w-full">
-                <Link href="/jobseeker/profile">
+                <Link href="/dashboard/jobseeker/profile">
                   <User className="mr-2 h-4 w-4" />
                   Edit Profile
                 </Link>
@@ -234,7 +258,7 @@ export default async function JobSeekerDashboard() {
                   {applications.length >= 10 && (
                     <div className="text-center pt-4">
                       <Button variant="outline" asChild>
-                        <Link href="/jobseeker/applications">View All Applications</Link>
+                        <Link href="/dashboard/jobseeker/applications">View All Applications</Link>
                       </Button>
                     </div>
                   )}

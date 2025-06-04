@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { redirect, notFound } from "next/navigation"
 import { ApplicationsManager } from "@/components/employer/applications-manager"
 
@@ -7,7 +7,7 @@ export default async function JobApplicationsPage({
 }: {
   params: { jobId: string }
 }) {
-  const supabase = createServerClient()
+  const supabase = await createClient()
 
   const {
     data: { session },
