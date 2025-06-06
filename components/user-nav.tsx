@@ -16,11 +16,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import type { UserProfile } from "@/types"
+import { useRouter } from "next/navigation"
 
 export function UserNav() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const router = useRouter()
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -59,6 +62,7 @@ export function UserNav() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
+    router.push("/auth/login")
   }
 
   if (loading) {

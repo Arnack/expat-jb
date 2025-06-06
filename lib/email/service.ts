@@ -26,7 +26,9 @@ export async function sendApplicationReceivedEmail({
   jobUrl,
 }: SendApplicationReceivedEmailProps) {
   try {
-    const emailHtml = render(
+    console.log(`📧 Sending application received email to: ${to} for job: ${jobTitle}`)
+    
+    const emailHtml = await render(
       ApplicationReceivedEmail({
         employerName,
         jobTitle,
@@ -46,13 +48,14 @@ export async function sendApplicationReceivedEmail({
     })
 
     if (error) {
-      console.error("Failed to send application received email:", error)
+      console.error("❌ Failed to send application received email:", error)
       return { success: false, error }
     }
 
+    console.log(`✅ Application received email sent successfully to: ${to}`, data)
     return { success: true, data }
   } catch (error) {
-    console.error("Error sending application received email:", error)
+    console.error("❌ Error sending application received email:", error)
     return { success: false, error }
   }
 }
@@ -77,7 +80,9 @@ export async function sendApplicationConfirmationEmail({
   dashboardUrl,
 }: SendApplicationConfirmationEmailProps) {
   try {
-    const emailHtml = render(
+    console.log(`📧 Sending application confirmation email to: ${to} for job: ${jobTitle}`)
+    
+    const emailHtml = await render(
       ApplicationConfirmationEmail({
         applicantName,
         jobTitle,
@@ -96,13 +101,14 @@ export async function sendApplicationConfirmationEmail({
     })
 
     if (error) {
-      console.error("Failed to send application confirmation email:", error)
+      console.error("❌ Failed to send application confirmation email:", error)
       return { success: false, error }
     }
 
+    console.log(`✅ Application confirmation email sent successfully to: ${to}`, data)
     return { success: true, data }
   } catch (error) {
-    console.error("Error sending application confirmation email:", error)
+    console.error("❌ Error sending application confirmation email:", error)
     return { success: false, error }
   }
 }
@@ -131,7 +137,9 @@ export async function sendApplicationStatusUpdateEmail({
   jobUrl,
 }: SendApplicationStatusUpdateEmailProps) {
   try {
-    const emailHtml = render(
+    console.log(`📧 Sending application status update email to: ${to} for job: ${jobTitle} (${oldStatus} → ${newStatus})`)
+    
+    const emailHtml = await render(
       ApplicationStatusUpdateEmail({
         applicantName,
         jobTitle,
@@ -152,13 +160,14 @@ export async function sendApplicationStatusUpdateEmail({
     })
 
     if (error) {
-      console.error("Failed to send application status update email:", error)
+      console.error("❌ Failed to send application status update email:", error)
       return { success: false, error }
     }
 
+    console.log(`✅ Application status update email sent successfully to: ${to}`, data)
     return { success: true, data }
   } catch (error) {
-    console.error("Error sending application status update email:", error)
+    console.error("❌ Error sending application status update email:", error)
     return { success: false, error }
   }
 }
